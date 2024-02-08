@@ -2,8 +2,23 @@ function Add-HttpServerHeader
 {
 	<#
 	.SYNOPSIS 
+	Adds a custom HTTP header to all sites in IIS.
+
+	.DESCRIPTION
+	This function adds a custom HTTP header to all sites in IIS. The header name and value can be specified as parameters, but by default, the header name is "Server" and the header value is the computer name.
+
+	.PARAMETER HeaderName
+	Specifies the name of the custom HTTP header. Default value is "Server".
+
+	.PARAMETER HeaderValue
+	Specifies the value of the custom HTTP header. Default value is the computer name.
+
 	.EXAMPLE
-		Add-HttpServerHeader -Verbose
+	Add-HttpServerHeader -Verbose
+	Adds the default custom HTTP header to all sites in IIS, displaying verbose output.
+
+	.NOTES
+	This function requires the WebAdministration module to be imported. If the header already exists for a site, it will be removed and then added with the new value.
 
 	#>
 	[CmdletBinding()]
@@ -32,7 +47,7 @@ function Add-HttpServerHeader
 				$headerExists = Get-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST" -location $siteName -filter "system.webServer/httpProtocol/customHeaders" -name "." | 
 					Where-Object { $_.name -eq $HeaderName }
 
-					if ($headerExists)
+				if ($headerExists)
 				{
 					Write-Verbose "Header $HeaderName already exists for $siteName. Removing existing header."
 					Remove-WebConfigurationProperty -pspath "MACHINE/WEBROOT/APPHOST" -location $siteName -filter "system.webServer/httpProtocol/customHeaders" -name "." -AtElement @{name=$HeaderName}
